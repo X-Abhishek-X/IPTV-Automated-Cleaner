@@ -1,0 +1,48 @@
+name: Update Playlist
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # Run every 6 hours
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install requests urllib3
+
+      - name: Scrape and Clean Playlist
+        run: python scripts/playlist_cleaner.py
+
+      - name: Force Update README URL (Optional)
+        run: |
+          # The Python script creates 'clean_playlist.m3u' in the root or cwd.
+          ls -lh clean_playlist.m3u
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/master'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          force_orphan: true
+          exclude_assets: ".github,scripts,README.md" # Only publish the m3u file? No, maybe keep it simple.
+          # Actually, publish everything in clear.
+          # But mainly, we want 'clean_playlist.m3u' available at root of gh-pages branch.
+
+      # If push to gh-pages fails or you prefer raw content from master:
+      # Just verify the file exists.
