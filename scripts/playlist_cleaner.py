@@ -9,8 +9,10 @@ import time
 SOURCE_URLS = [
     "https://iptv-org.github.io/iptv/countries/us.m3u",  # USA
     "https://iptv-org.github.io/iptv/countries/uk.m3u",  # UK
+    "https://iptv-org.github.io/iptv/countries/in.m3u",  # India (Malayalam, Hindi, etc.)
     "https://iptv-org.github.io/iptv/categories/news.m3u", # Global News
-    "https://iptv-org.github.io/iptv/categories/movies.m3u" # Global Movies
+    "https://iptv-org.github.io/iptv/categories/movies.m3u", # Global Movies
+    "https://iptv-org.github.io/iptv/categories/sports.m3u" # Global Sports
 ]
 
 OUTPUT_FILE = "clean_playlist.m3u"
