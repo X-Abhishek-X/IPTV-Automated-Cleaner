@@ -23,14 +23,29 @@ TIMEOUT = 5       # Seconds to wait for a stream to respond
 
 def is_stream_working(url):
     """
-    Checks if a stream URL is accessible and returns a valid status code.
-    We use verify=False to ignore SSL errors which are common in IPTV.
+    Checks if a stream URL is accessible and returns valid media content.
     """
     try:
+        # We only need the headers and the very beginning of the content
         with requests.get(url, stream=True, timeout=TIMEOUT, verify=False) as response:
             if response.status_code == 200:
-                # Check Content-Type to ensure it's media (optional, sometimes misleading)
-                # But at least make sure we got bytes.
+                # 1. Content-Type check (ignore if missing)
+                ctype = response.headers.get('Content-Type', '').lower()
+                if 'text/html' in ctype:
+                    return False
+                
+                # 2. Peek at first 100 bytes to check for HTML tags
+                content_peek = response.iter_content(chunk_size=100)
+                first_chunk = next(content_peek, b"")
+                
+                # Reject if it looks like an HTML page
+                if b"<html" in first_chunk.lower() or b"<!doctype" in first_chunk.lower():
+                    return False
+                
+                # Reject if it's completely empty
+                if not first_chunk:
+                    return False
+
                 return True
     except:
         return False
